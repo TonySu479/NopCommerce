@@ -117,6 +117,8 @@ namespace Nop.Services.Installation
         private readonly IRepository<Vendor> _vendorRepository;
         private readonly IRepository<Warehouse> _warehouseRepository;
         private readonly IWebHelper _webHelper;
+        private readonly IRepository<CelebrityCelebrityTagMapping> _celebrityCelebrityTagMappingRepository;
+        private readonly IRepository<CelebrityTag> _celebrityTagRepository;
 
         #endregion
 
@@ -183,7 +185,10 @@ namespace Nop.Services.Installation
             IRepository<UrlRecord> urlRecordRepository,
             IRepository<Vendor> vendorRepository,
             IRepository<Warehouse> warehouseRepository,
-            IWebHelper webHelper)
+            IWebHelper webHelper,
+            IRepository<CelebrityCelebrityTagMapping> celebrityCelebrityTagMappingRepository,
+            IRepository<CelebrityTag> celebrityTagRepository)
+
         {
             _addressService = addressService;
             _dataProvider = dataProvider;
@@ -247,6 +252,8 @@ namespace Nop.Services.Installation
             _vendorRepository = vendorRepository;
             _warehouseRepository = warehouseRepository;
             _webHelper = webHelper;
+            _celebrityCelebrityTagMappingRepository = celebrityCelebrityTagMappingRepository;
+            _celebrityTagRepository = celebrityTagRepository;
         }
 
         #endregion
@@ -12536,6 +12543,32 @@ namespace Nop.Services.Installation
             }
 
             _productProductTagMappingRepository.Insert(new ProductProductTagMapping { ProductTagId = productTag.Id, ProductId = product.Id });
+        }
+
+        private void AddCelebrityTag(Celebrity celebrity, string tag)
+        {
+            var celebrityTag = _celebrityTagRepository.Table.FirstOrDefault(pt => pt.Name == tag);
+
+            if (celebrityTag is null)
+            {
+                celebrityTag = new CelebrityTag
+                {
+                    Name = tag
+                };
+                _celebrityTagRepository.Insert(celebrityTag);
+
+                //search engine name
+                _urlRecordRepository.Insert(new UrlRecord
+                {
+                    EntityId = celebrityTag.Id,
+                    EntityName = nameof(CelebrityTag),
+                    LanguageId = 0,
+                    IsActive = true,
+                    Slug = ValidateSeName(celebrityTag, celebrityTag.Name)
+                });
+            }
+
+            _celebrityCelebrityTagMappingRepository.Insert(new CelebrityCelebrityTagMapping { CelebrityTagId = celebrityTag.Id, CelebrityId = celebrity.Id });
         }
 
         #endregion

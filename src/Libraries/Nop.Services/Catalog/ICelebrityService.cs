@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
 
 namespace Nop.Services.Catalog
@@ -16,6 +17,7 @@ namespace Nop.Services.Catalog
         IList<CelebrityPicture> GetCelebrityPicturesByCelebrityId(int celebrityId);
         void InsertCelebrity(Celebrity celebrity);
         void InsertCelebrityPicture(CelebrityPicture celebrityPicture);
+        IPagedList<Celebrity> SearchCelebrities(int pageIndex = 0, int pageSize = int.MaxValue, int celebrityTagId = 0, bool searchCelebrityTags = false, int languageId = 0, ProductSortingEnum orderBy = ProductSortingEnum.Position);
         void UpdateCelebrity(Celebrity celebrity);
         void UpdateCelebrityPicture(CelebrityPicture celebrityPicture);
     }

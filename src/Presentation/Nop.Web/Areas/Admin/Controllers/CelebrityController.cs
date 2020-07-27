@@ -9,6 +9,7 @@ using Nop.Services.Logging;
 using Nop.Services.Media;
 using Nop.Services.Messages;
 using Nop.Services.Security;
+using Nop.Services.Seo;
 using Nop.Web.Areas.Admin.Controllers;
 using Nop.Web.Areas.Admin.Factories;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
@@ -27,6 +28,8 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         private readonly INotificationService _notificationService;
         private readonly ILocalizedEntityService _localizedEntityService;
         private readonly IPictureService _pictureService;
+        private readonly ICelebrityTagService _celebrityTagService;
+        private readonly IUrlRecordService _urlRecordService;
 
         public CelebrityController(IPermissionService permissionService, ICelebrityModelFactory celebrityModelFactory,
           ICelebrityService celebrityService,
@@ -34,7 +37,10 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
           ILocalizationService localizationService,
           INotificationService notificationService,
           ILocalizedEntityService localizedEntityService,
-          IPictureService pictureService)
+          IPictureService pictureService,
+          ICelebrityTagService celebrityTagService,
+          IUrlRecordService urlRecordService
+          )
         {
             _permissionService = permissionService;
             _celebrityModelFactory = celebrityModelFactory;
@@ -44,6 +50,8 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             _notificationService = notificationService;
             _localizedEntityService = localizedEntityService;
             _pictureService = pictureService;
+            _celebrityTagService = celebrityTagService;
+            _urlRecordService = urlRecordService;
         }
 
         protected virtual void UpdateLocales(Celebrity celebrity,
@@ -57,13 +65,27 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
                     localized.LanguageId);
             }
         }
+
+        protected virtual void UpdateLocales(CelebrityTag celebrityTag, CelebrityTagModel model)
+        {
+            foreach (var localized in model.Locales)
+            {
+                _localizedEntityService.SaveLocalizedValue(celebrityTag,
+                    x => x.Name,
+                    localized.Name,
+                    localized.LanguageId);
+
+                var seName = _urlRecordService.ValidateSeName(celebrityTag, string.Empty, localized.Name, false);
+                _urlRecordService.SaveSlug(celebrityTag, seName, localized.LanguageId);
+            }
+        }
+
         public virtual IActionResult Index()
         {
             return RedirectToAction("List");
         }
         public virtual IActionResult List()
         {
-            //if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrities))
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrities))
                 return AccessDeniedView();
 
@@ -76,7 +98,6 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [HttpPost]
         public virtual IActionResult List(CelebritySearchModel searchModel)
         {
-            //if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrities))
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrities))
                 return AccessDeniedDataTablesJson();
 
@@ -113,6 +134,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
                 //locales
                 UpdateLocales(celebrity, model);
+
+                //tags
+                _celebrityTagService.UpdateCelebrityTags(celebrity, ParseCelebrityTags(model.CelebrityTags));
 
                 //activity log
                 _customerActivityService.InsertActivity("AddNewCelebrity",
@@ -164,6 +188,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             {
                 //locales
                 UpdateLocales(celebrity, model);
+
+                //tags
+                _celebrityTagService.UpdateCelebrityTags(celebrity, ParseCelebrityTags(model.CelebrityTags));
 
                 //celebrity
                 celebrity = model.ToEntity(celebrity);
@@ -221,7 +248,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
                 _celebrityService.DeleteCelebrities(_celebrityService.GetCelebritiesByIds(selectedIds.ToArray()).ToList());
             }
 
-            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Catalog.Products.Deleted"));
+            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Catalog.Celebrities.Deleted"));
 
             return Json(new { Result = true });
         }
@@ -330,6 +357,126 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
             return new NullJsonResult();
         }
+
+        protected virtual string[] ParseCelebrityTags(string celebrityTags)
+        {
+            var result = new List<string>();
+            if (string.IsNullOrWhiteSpace(celebrityTags))
+                return result.ToArray();
+
+            var values = celebrityTags.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+            foreach (var val in values)
+                if (!string.IsNullOrEmpty(val.Trim()))
+                    result.Add(val.Trim());
+
+            return result.ToArray();
+        }
+
+        #region Celebrity tags
+
+        public virtual IActionResult CelebrityTags()
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrityTags))
+                return AccessDeniedView();
+
+            //prepare model
+            var model = _celebrityModelFactory.PrepareCelebrityTagSearchModel(new CelebrityTagSearchModel());
+
+            return View(model);
+        }
+
+        [HttpPost]
+        public virtual IActionResult CelebrityTags(CelebrityTagSearchModel searchModel)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrityTags))
+                return AccessDeniedDataTablesJson();
+
+            //prepare model
+            var model = _celebrityModelFactory.PrepareCelebrityTagListModel(searchModel);
+
+            return Json(model);
+        }
+
+        [HttpPost]
+        public virtual IActionResult CelebrityTagDelete(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrityTags))
+                return AccessDeniedView();
+
+            //try to get a celebrity tag with the specified id
+            var tag = _celebrityTagService.GetCelebrityTagById(id)
+                ?? throw new ArgumentException("No celebrity tag found with the specified id");
+
+            _celebrityTagService.DeleteCelebrityTag(tag);
+
+            _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Catalog.CelebrityTags.Deleted"));
+
+            return RedirectToAction("CelebrityTags");
+        }
+
+        [HttpPost]
+        public virtual IActionResult CelebrityTagsDelete(ICollection<int> selectedIds)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrityTags))
+                return AccessDeniedView();
+
+            if (selectedIds != null)
+            {
+                var tags = _celebrityTagService.GetCelebrityTagsByIds(selectedIds.ToArray());
+                _celebrityTagService.DeleteCelebrityTags(tags);
+            }
+
+            return Json(new { Result = true });
+        }
+
+        public virtual IActionResult EditCelebrityTag(int id)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrityTags))
+                return AccessDeniedView();
+
+            //try to get a celebrity tag with the specified id
+            var celebrityTag = _celebrityTagService.GetCelebrityTagById(id);
+            if (celebrityTag == null)
+                return RedirectToAction("List");
+
+            //prepare tag model
+            var model = _celebrityModelFactory.PrepareCelebrityTagModel(null, celebrityTag);
+
+            return View(model);
+        }
+
+        [HttpPost, ParameterBasedOnFormName("save-continue", "continueEditing")]
+        public virtual IActionResult EditCelebrityTag(CelebrityTagModel model, bool continueEditing)
+        {
+            if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrityTags))
+                return AccessDeniedView();
+
+            //try to get a celebrity tag with the specified id
+            var celebrityTag = _celebrityTagService.GetCelebrityTagById(model.Id);
+            if (celebrityTag == null)
+                return RedirectToAction("List");
+
+            if (ModelState.IsValid)
+            {
+                celebrityTag.Name = model.Name;
+                _celebrityTagService.UpdateCelebrityTag(celebrityTag);
+
+                //locales
+                UpdateLocales(celebrityTag, model);
+
+                _notificationService.SuccessNotification(_localizationService.GetResource("Admin.Catalog.CelebrityTags.Updated"));
+
+                return continueEditing ? RedirectToAction("EditCelebrityTag", new { id = celebrityTag.Id }) : RedirectToAction("CelebrityTags");
+            }
+
+            //prepare model
+            model = _celebrityModelFactory.PrepareCelebrityTagModel(model, celebrityTag, true);
+
+            //if we got this far, something failed, redisplay form
+            return View(model);
+        }
+
+        #endregion
 
     }
 }

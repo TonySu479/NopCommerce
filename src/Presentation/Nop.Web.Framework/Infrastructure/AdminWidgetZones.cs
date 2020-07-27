@@ -289,5 +289,11 @@
         public static string CelebrityListButtons => "admin_celebrity_list_buttons";
         public static string CelebrityDetailsButtons => "admin_celebrity_details_buttons";
         public static string CelebrityDetailsBlock => "admin_celebrity_details_block";
+        public static string CelebrityTagDetailsTop => "admin_celebrity_tag_details_top";
+        public static string CelebrityTagDetailsBottom => "admin_celebrity_tag_details_bottom";
+        public static string CelebrityTagListButtons => "admin_product_tag_list_buttons";
+        public static string CelebrityTagDetailsButtons => "admin_celebrity_tag_details_buttons";
+
+
     }
 }

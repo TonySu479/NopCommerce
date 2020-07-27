@@ -417,6 +417,55 @@ namespace Nop.Services.Catalog
 
         #endregion
 
+        #region Celebrities
+
+        /// <summary>
+        /// Gets a key pattern to clear cache
+        /// </summary>
+        /// <remarks>
+        /// {0} : celebrity IDs hash
+        /// </remarks>
+        public static CacheKey CelebritiesByIdsCacheKey => new CacheKey("Nop.celebrity.ids-{0}", CelebritiesByIdsPrefixCacheKey);
+
+        /// <summary>
+        /// Gets a key pattern to clear cache
+        /// </summary>
+        public static string CelebritiesByIdsPrefixCacheKey => "Nop.celebrity.ids";
+
+        #endregion
+
+        #region Celebrity tags
+
+        /// <summary>
+        /// Gets a key for caching
+        /// </summary>
+        public static CacheKey CelebrityTagAllCacheKey => new CacheKey("Nop.celebritytag.all", CelebrityTagPrefixCacheKey);
+
+        /// <summary>
+        /// Gets a key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : store ID
+        /// {1} : hash of list of customer roles IDs
+        /// {2} : show hidden records?
+        /// </remarks>
+        public static CacheKey CelebrityTagCountCacheKey => new CacheKey("Nop.celebritytag.all.count-{0}-{1}-{2}", CelebrityTagPrefixCacheKey);
+
+        /// <summary>
+        /// Gets a key pattern to clear cache
+        /// </summary>
+        public static string CelebrityTagPrefixCacheKey => "Nop.celebritytag.";
+
+        /// <summary>
+        /// Gets a key for caching
+        /// </summary>
+        /// <remarks>
+        /// {0} : celebrity ID
+        /// </remarks>
+        public static CacheKey CelebrityTagAllByCelebrityIdCacheKey => new CacheKey("Nop.celebritytag.allbycelebrityid-{0}", CelebrityTagPrefixCacheKey);
+
+        #endregion
+
         #endregion
     }
 }

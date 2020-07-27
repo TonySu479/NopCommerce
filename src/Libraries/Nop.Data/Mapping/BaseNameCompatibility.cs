@@ -19,6 +19,7 @@ namespace Nop.Data.Mapping
         {
             { typeof(ProductAttributeMapping), "Product_ProductAttribute_Mapping" },
             { typeof(ProductProductTagMapping), "Product_ProductTag_Mapping" },
+            { typeof(CelebrityCelebrityTagMapping), "Celebrity_CelebrityTag_Mapping" },
             { typeof(ProductReviewReviewTypeMapping), "ProductReview_ReviewType_Mapping" },
             { typeof(CustomerAddressMapping), "CustomerAddresses" },
             { typeof(CustomerCustomerRoleMapping), "Customer_CustomerRole_Mapping" },
@@ -52,6 +53,8 @@ namespace Nop.Data.Mapping
             { (typeof(PermissionRecordCustomerRoleMapping), "CustomerRoleId"), "CustomerRole_Id" },
             { (typeof(ProductProductTagMapping), "ProductId"), "Product_Id" },
             { (typeof(ProductProductTagMapping), "ProductTagId"), "ProductTag_Id" },
+            { (typeof(CelebrityCelebrityTagMapping), "CelebrityId"), "Celebrity_Id" },
+            { (typeof(CelebrityCelebrityTagMapping), "CelebrityTagId"), "CelebrityTag_Id" },
             { (typeof(DiscountCategoryMapping), "DiscountId"), "Discount_Id" },
             { (typeof(DiscountCategoryMapping), "EntityId"), "Category_Id" },
             { (typeof(DiscountManufacturerMapping), "DiscountId"), "Discount_Id" },

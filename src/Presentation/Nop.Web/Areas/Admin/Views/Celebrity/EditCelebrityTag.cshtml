@@ -1,0 +1,37 @@
+@model CelebrityTagModel
+
+@{
+    //page title
+    ViewBag.PageTitle = T("Admin.Catalog.CelebrityTags.EditTagDetails").Text;
+    //active menu item (system name)
+    Html.SetActiveMenuItemSystemName("Celebrity tags");
+}
+
+<form asp-controller="Celebrity" asp-action="EditCelebrityTag" method="post">
+    <div class="content-header clearfix">
+        <h1 class="pull-left">
+            @T("Admin.Catalog.CelebrityTags.EditTagDetails")
+            <small>
+                <i class="fa fa-arrow-circle-left"></i>
+                <a asp-action="CelebrityTags">@T("Admin.Catalog.CelebrityTags.BackToList")</a>
+            </small>
+        </h1>
+        <div class="pull-right">
+            <button type="submit" name="save" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.Save")
+            </button>
+            <button type="submit" name="save-continue" class="btn bg-blue">
+                <i class="fa fa-floppy-o"></i>
+                @T("Admin.Common.SaveContinue")
+            </button>
+            <span id="celebritytag-delete" class="btn bg-red">
+                <i class="fa fa-trash-o"></i>
+                @T("Admin.Common.Delete")
+            </span>
+            @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CelebrityTagDetailsButtons, additionalData = Model })
+        </div>
+    </div>
+    @await Html.PartialAsync("_CreateOrUpdateCelebrityTag", Model)
+</form>
+<nop-delete-confirmation asp-model-id="@Model.Id" asp-button-id="celebritytag-delete" asp-action="CelebrityTagDelete"/>

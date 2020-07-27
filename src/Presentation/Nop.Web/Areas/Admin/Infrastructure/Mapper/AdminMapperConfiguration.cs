@@ -585,12 +585,15 @@ namespace Nop.Web.Areas.Admin.Infrastructure.Mapper
             CreateMap<TierPriceModel, TierPrice>()
                 .ForMember(entity => entity.CustomerRoleId, options => options.Ignore())
                 .ForMember(entity => entity.ProductId, options => options.Ignore());
-            CreateMap<Celebrity, CelebrityModel>();
+            CreateMap<Celebrity, CelebrityModel>()
+                 .ForMember(model => model.InitialCelebrityTags, options => options.Ignore());
             CreateMap<CelebrityModel, Celebrity>();
             CreateMap<CelebrityPicture, CelebrityPictureModel>()
                 .ForMember(model => model.OverrideAltAttribute, options => options.Ignore())
                 .ForMember(model => model.OverrideTitleAttribute, options => options.Ignore())
                 .ForMember(model => model.PictureUrl, options => options.Ignore());
+            CreateMap<CelebrityTag, CelebrityTagModel>()
+   .ForMember(model => model.CelebrityCount, options => options.Ignore());
         }
 
         /// <summary>

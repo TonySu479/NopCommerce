@@ -3,7 +3,10 @@ using Nop.Core.Domain.Catalog;
 
 namespace Nop.Data.Mapping.Builders.Catalog
 {
-    public class CelebrityBuilder : NopEntityBuilder<Celebrity>
+    /// <summary>
+    /// Represents a celebrity tag entity builder
+    /// </summary>
+    public partial class CelebrityTagBuilder : NopEntityBuilder<CelebrityTag>
     {
         #region Methods
 
@@ -13,7 +16,7 @@ namespace Nop.Data.Mapping.Builders.Catalog
         /// <param name="table">Create table expression builder</param>
         public override void MapEntity(CreateTableExpressionBuilder table)
         {
-            table.WithColumn(nameof(CelebrityTag.Name)).AsString(400).NotNullable();
+            table.WithColumn(nameof(ProductTag.Name)).AsString(400).NotNullable();
         }
 
         #endregion

@@ -9,6 +9,8 @@ namespace Nop.Web.Areas.Admin.Factories
         CelebrityModel PrepareCelebrityModel(CelebrityModel model, Celebrity celebrity, bool excludeProperties = false);
         CelebrityPictureListModel PrepareCelebrityPictureListModel(CelebrityPictureSearchModel searchModel, Celebrity celebrity);
         CelebritySearchModel PrepareCelebritySearchModel(CelebritySearchModel searchModel);
-
+        CelebrityTagListModel PrepareCelebrityTagListModel(CelebrityTagSearchModel searchModel);
+        CelebrityTagModel PrepareCelebrityTagModel(CelebrityTagModel model, CelebrityTag celebrityTag, bool excludeProperties = false);
+        CelebrityTagSearchModel PrepareCelebrityTagSearchModel(CelebrityTagSearchModel searchModel);
     }
 }

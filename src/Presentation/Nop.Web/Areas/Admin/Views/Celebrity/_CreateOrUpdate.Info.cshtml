@@ -1,6 +1,37 @@
 ﻿@model CelebrityModel
 
-<div class="panel-body">
+@inject IStoreService storeService
+
+@using Nop.Core.Domain.Catalog;
+@using Nop.Services
+@using Nop.Services.Stores
+
+@{
+    var stores = storeService.GetAllStores();
+
+    //resources for celebrity tags input
+    Html.AppendCssFileParts("~/lib/tagEditor/jquery.tag-editor.css");
+    Html.AppendScriptParts("~/lib/tagEditor/jquery.tag-editor.min.js");
+    Html.AppendScriptParts("~/lib/tagEditor/jquery.caret.min.js");
+}
+    <script>
+    //tags
+    $(document).ready(function() {
+        @Html.Raw(Model.InitialCelebrityTags)
+        $("#@Html.IdFor(model => model.CelebrityTags)").tagEditor({
+            autocomplete: {
+                delay: 0,
+                position: { collision: 'flip' },
+                source: initialCelebrityTags
+            },
+            delimiter: ',',
+            placeholder: '@T("Admin.Catalog.Celebrities.Fields.CelebrityTags.Placeholder")'
+        });
+    });
+
+    </script>
+
+    <div class="panel-body">
         @(Html.LocalizedEditor<CelebrityModel, CelebrityLocalizedModel>("celebrity-name-localized",
     @<div>
         <div class="form-group">
@@ -25,6 +56,15 @@
                 <span asp-validation-for="Name"></span>
             </div>
         </div>
+
     </div>))
-</div>         
-          
+        <div class="form-group @(Model.CelebrityEditorSettingsModel.CelebrityTags ? null : "advanced-setting")">
+            <div class="col-md-3">
+                <nop-label asp-for="CelebrityTags" />
+            </div>
+            <div class="col-md-9">
+                <nop-editor asp-for="CelebrityTags" />
+                <span asp-validation-for="CelebrityTags"></span>
+            </div>
+        </div>
+    </div>

@@ -54,6 +54,10 @@ namespace Nop.Web.Infrastructure.Cache
         IConsumer<EntityInsertedEvent<ProductTag>>,
         IConsumer<EntityUpdatedEvent<ProductTag>>,
         IConsumer<EntityDeletedEvent<ProductTag>>,
+        //celebrity tags
+        IConsumer<EntityInsertedEvent<CelebrityTag>>,
+        IConsumer<EntityUpdatedEvent<CelebrityTag>>,
+        IConsumer<EntityDeletedEvent<CelebrityTag>>,
         //specification attributes
         IConsumer<EntityUpdatedEvent<SpecificationAttribute>>,
         IConsumer<EntityDeletedEvent<SpecificationAttribute>>,
@@ -334,6 +338,25 @@ namespace Nop.Web.Infrastructure.Cache
         }
 
         public void HandleEvent(EntityDeletedEvent<ProductTag> eventMessage)
+        {
+            _staticCacheManager.RemoveByPrefix(NopModelCacheDefaults.SitemapPrefixCacheKey);
+        }
+
+        #endregion
+
+        #region Celebrity tags
+
+        public void HandleEvent(EntityInsertedEvent<CelebrityTag> eventMessage)
+        {
+            _staticCacheManager.RemoveByPrefix(NopModelCacheDefaults.SitemapPrefixCacheKey);
+        }
+
+        public void HandleEvent(EntityUpdatedEvent<CelebrityTag> eventMessage)
+        {
+            _staticCacheManager.RemoveByPrefix(NopModelCacheDefaults.SitemapPrefixCacheKey);
+        }
+
+        public void HandleEvent(EntityDeletedEvent<CelebrityTag> eventMessage)
         {
             _staticCacheManager.RemoveByPrefix(NopModelCacheDefaults.SitemapPrefixCacheKey);
         }

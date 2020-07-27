@@ -4,18 +4,17 @@ using Nop.Services.Caching;
 namespace Nop.Services.Catalog.Caching
 {
     /// <summary>
-    /// Represents a celebrity cache event consumer
+    /// Represents a celebrity tag cache event consumer
     /// </summary>
-    public partial class CelebrityCacheEventConsumer : CacheEventConsumer<Celebrity>
+    public partial class CelebrityTagCacheEventConsumer : CacheEventConsumer<CelebrityTag>
     {
         /// <summary>
         /// Clear cache data
         /// </summary>
         /// <param name="entity">Entity</param>
-        protected override void ClearCache(Celebrity entity)
+        protected override void ClearCache(CelebrityTag entity)
         {
-
-            RemoveByPrefix(NopCatalogDefaults.CelebritiesByIdsPrefixCacheKey);
+            RemoveByPrefix(NopCatalogDefaults.CelebrityTagPrefixCacheKey);
         }
     }
 }

@@ -213,6 +213,8 @@ namespace Nop.Data.Migrations
 
             _migrationManager.BuildTable<Celebrity>(Create);
             _migrationManager.BuildTable<CelebrityPicture>(Create);
+            _migrationManager.BuildTable<CelebrityTag>(Create);
+            _migrationManager.BuildTable<CelebrityCelebrityTagMapping>(Create);
         }
     }
 }

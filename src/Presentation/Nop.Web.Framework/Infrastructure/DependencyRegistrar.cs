@@ -227,6 +227,7 @@ namespace Nop.Web.Framework.Infrastructure
             builder.RegisterType<RoutePublisher>().As<IRoutePublisher>().SingleInstance();
             builder.RegisterType<CacheKeyService>().As<ICacheKeyService>().InstancePerLifetimeScope();
             builder.RegisterType<CelebrityService>().As<ICelebrityService>().InstancePerLifetimeScope();
+            builder.RegisterType<CelebrityTagService>().As<ICelebrityTagService>().InstancePerLifetimeScope();
             //slug route transformer
             builder.RegisterType<SlugRouteTransformer>().AsSelf().InstancePerLifetimeScope();
             builder.RegisterType<ReviewTypeService>().As<IReviewTypeService>().SingleInstance();

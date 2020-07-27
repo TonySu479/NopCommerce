@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
+using Nop.Core.Domain.Common;
 using Nop.Data;
 using Nop.Services.Caching;
 using Nop.Services.Caching.Extensions;
 using Nop.Services.Events;
+using Nop.Services.Localization;
 
 namespace Nop.Services.Catalog
 {
@@ -17,16 +20,22 @@ namespace Nop.Services.Catalog
         private readonly IEventPublisher _eventPublisher;
         private readonly ICacheKeyService _cacheKeyService;
         private readonly IRepository<CelebrityPicture> _celebrityPictureRepository;
+        private readonly CommonSettings _commonSettings;
+        private readonly ILanguageService _languageService;
         #region Ctor
 
         public CelebrityService(IRepository<Celebrity> celebrityRepository, IEventPublisher eventPublisher, ICacheKeyService cacheKeyService,
-          IRepository<CelebrityPicture> celebrityPictureRepository
+          IRepository<CelebrityPicture> celebrityPictureRepository,
+          CommonSettings commonSettings,
+          ILanguageService languageService
 )
         {
             _celebrityRepository = celebrityRepository;
             _eventPublisher = eventPublisher;
             _cacheKeyService = cacheKeyService;
             _celebrityPictureRepository = celebrityPictureRepository;
+            _commonSettings = commonSettings;
+            _languageService = languageService;
         }
 
         #endregion
@@ -71,7 +80,7 @@ namespace Nop.Services.Catalog
         {
             var query = _celebrityRepository.Table;
 
-            var allCelebrities = query.ToCachedList(_cacheKeyService.PrepareKeyForDefaultCache(NopCatalogDefaults.ProductTagAllCacheKey));
+            var allCelebrities = query.ToCachedList(_cacheKeyService.PrepareKeyForDefaultCache(NopCatalogDefaults.CelebrityTagAllCacheKey));
 
             if (!string.IsNullOrEmpty(celebrityName))
             {
@@ -79,6 +88,95 @@ namespace Nop.Services.Catalog
             }
 
             return allCelebrities;
+        }
+
+        ///// <summary>
+        ///// Search celebrities
+        ///// </summary>
+        ///// <param name="pageIndex">Page index</param>
+        ///// <param name="pageSize">Page size</param>
+        ///// <param name="celebrityTagId">Celebrity tag identifier; 0 to load all records</param>
+        ///// <param name="keywords">Keywords</param>
+        ///// <param name="searchCelebrityTags">A value indicating whether to search by a specified "keyword" in celebrity tags</param>
+        ///// <param name="languageId">Language identifier (search for text searching)</param>
+        ///// </param>
+        ///// <returns>Celebrities</returns>
+        //public virtual IPagedList<Product> SearchCelebrities(
+        //    int pageIndex = 0,
+        //    int pageSize = int.MaxValue,
+        //    int celebrityTagId = 0,
+        //    string keywords = null,
+        //    bool searchCelebrityTags = false,
+        //    int languageId = 0,
+        //    ProductSortingEnum orderBy = ProductSortingEnum.Position,
+        //    bool showHidden = false
+        //    )
+        //{
+        //    return SearchCelebrities(pageIndex, pageSize, celebrityTagId, keywords, searchCelebrityTags, languageId, orderBy, showHidden);
+        //}
+
+        /// <summary>
+        /// Search celebrities
+        /// </summary>
+        /// <param name="pageIndex">Page index</param>
+        /// <param name="pageSize">Page size</param>
+        /// <param name="celebrityTagId">Celebrity tag identifier; 0 to load all records</param>
+        /// <param name="searchCelebrityTags">A value indicating whether to search by a specified "keyword" in celebrity tags</param>
+        /// <param name="languageId">Language identifier (search for text searching)</param>
+        /// <param name="orderBy">Order by</param>
+        /// </param>
+        /// <returns>Celebrities</returns>
+        public virtual IPagedList<Celebrity> SearchCelebrities(
+            int pageIndex = 0,
+            int pageSize = int.MaxValue,
+            int celebrityTagId = 0,
+            bool searchCelebrityTags = false,
+            int languageId = 0,
+            ProductSortingEnum orderBy = ProductSortingEnum.Position
+)
+        {
+            //search by keyword
+            var searchLocalizedValue = false;
+            if (languageId > 0)
+            {
+                    //ensure that we have at least two published languages
+                    var totalPublishedLanguages = _languageService.GetAllLanguages().Count;
+                    searchLocalizedValue = totalPublishedLanguages >= 2;
+            }
+
+            //some databases don't support int.MaxValue
+            if (pageSize == int.MaxValue)
+                pageSize = int.MaxValue - 1;
+
+            //prepare input parameters
+            var pCelebrityTagId = SqlParameterHelper.GetInt32Parameter("CelebrityTagId", celebrityTagId);
+            var pSearchCelebrityTags = SqlParameterHelper.GetBooleanParameter("SearchCelebrityTags", searchCelebrityTags);
+            var pUseFullTextSearch = SqlParameterHelper.GetBooleanParameter("UseFullTextSearch", _commonSettings.UseFullTextSearch);
+            var pFullTextMode = SqlParameterHelper.GetInt32Parameter("FullTextMode", (int)_commonSettings.FullTextMode);
+            var pLanguageId = SqlParameterHelper.GetInt32Parameter("LanguageId", searchLocalizedValue ? languageId : 0);
+            var pOrderBy = SqlParameterHelper.GetInt32Parameter("OrderBy", (int)orderBy);
+            var pPageIndex = SqlParameterHelper.GetInt32Parameter("PageIndex", pageIndex);
+            var pPageSize = SqlParameterHelper.GetInt32Parameter("PageSize", pageSize);
+
+            var pTotalRecords = SqlParameterHelper.GetOutputInt32Parameter("TotalRecords");
+
+            //invoke stored procedure
+            var celebrities = _celebrityRepository.EntityFromSql("CelebrityLoadAllPaged",
+                pCelebrityTagId,
+                pSearchCelebrityTags,
+                pUseFullTextSearch,
+                pFullTextMode,
+                pLanguageId,
+                pOrderBy,
+                pPageIndex,
+                pPageSize,
+                pTotalRecords).ToList();
+
+
+            //return celebrities
+            var totalRecords = pTotalRecords.Value != DBNull.Value ? Convert.ToInt32(pTotalRecords.Value) : 0;
+
+            return new PagedList<Celebrity>(celebrities, pageIndex, pageSize, totalRecords);
         }
 
         /// <summary>

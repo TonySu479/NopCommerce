@@ -63,6 +63,7 @@ namespace Nop.Services.Security
         public static readonly PermissionRecord PublicStoreAllowNavigation = new PermissionRecord { Name = "Public store. Allow navigation", SystemName = "PublicStoreAllowNavigation", Category = "PublicStore" };
         public static readonly PermissionRecord AccessClosedStore = new PermissionRecord { Name = "Public store. Access a closed store", SystemName = "AccessClosedStore", Category = "PublicStore" };
         public static readonly PermissionRecord ManageCelebrities = new PermissionRecord { Name = "Admin area. Manage Celebrities", SystemName = "ManageCelebrities", Category = "Catalog" };
+        public static readonly PermissionRecord ManageCelebrityTags = new PermissionRecord { Name = "Admin area. Manage Celebrity Tags", SystemName = "ManageCelebrityTags", Category = "Catalog" };
 
         /// <summary>
         /// Get permissions
@@ -122,7 +123,8 @@ namespace Nop.Services.Security
                 EnableWishlist,
                 PublicStoreAllowNavigation,
                 AccessClosedStore,
-                ManageCelebrities
+                ManageCelebrities,
+                ManageCelebrityTags
             };
         }
 
@@ -188,7 +190,8 @@ namespace Nop.Services.Security
                         EnableWishlist,
                         PublicStoreAllowNavigation,
                         AccessClosedStore,
-                        ManageCelebrities
+                        ManageCelebrities,
+                        ManageCelebrityTags,
                     }
                 ),
                 (

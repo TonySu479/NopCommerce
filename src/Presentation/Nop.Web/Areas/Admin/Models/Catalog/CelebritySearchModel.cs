@@ -9,7 +9,20 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
     /// </summary>
     public partial class CelebritySearchModel : BaseSearchModel
     {
-        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.SearchTagName")]
+        #region Ctor
+
+        public CelebritySearchModel()
+        {
+
+        }
+
+        #endregion
+
+        #region Properties
+
+        [NopResourceDisplayName("Admin.Catalog.Celebrity.List.SearchCelebrityName")]
         public string SearchCelebrityName { get; set; }
+
+        #endregion
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Catalog;
@@ -22,13 +23,15 @@ namespace Nop.Web.Areas.Admin.Factories
         private readonly ILocalizationService _localizationService;
         private readonly ILocalizedModelFactory _localizedModelFactory;
         private readonly IPictureService _pictureService;
+        private readonly ICelebrityTagService _celebrityTagService;
         #region Ctor
         public CelebrityModelFactory(
             CatalogSettings catalogSettings,
             ICelebrityService celebrityService,
             ILocalizationService localizationService,
             ILocalizedModelFactory localizedModelFactory,
-            IPictureService pictureService
+            IPictureService pictureService,
+            ICelebrityTagService celebrityTagService
             )
         {
             _catalogSettings = catalogSettings;
@@ -36,6 +39,7 @@ namespace Nop.Web.Areas.Admin.Factories
             _localizationService = localizationService;
             _localizedModelFactory = localizedModelFactory;
             _pictureService = pictureService;
+            _celebrityTagService = celebrityTagService;
         }
         #endregion
         /// <summary>
@@ -48,11 +52,13 @@ namespace Nop.Web.Areas.Admin.Factories
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
 
-            //prepare page parameters
+            //prepare grid
             searchModel.SetGridPageSize();
 
             return searchModel;
         }
+
+
         /// <summary>
         /// Prepare paged celebrity list model
         /// </summary>
@@ -64,10 +70,8 @@ namespace Nop.Web.Areas.Admin.Factories
                 throw new ArgumentNullException(nameof(searchModel));
 
             //get celebrities
-            var celebrities = _celebrityService.GetAllCelebrities(celebrityName: searchModel.SearchCelebrityName)
-                .ToList()
-                .ToPagedList(searchModel);
-
+            var celebrities = _celebrityService.SearchCelebrities(
+                pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
             //prepare list model
             var model = new CelebrityListModel().PrepareToGrid(searchModel, celebrities, () =>
             {
@@ -75,6 +79,8 @@ namespace Nop.Web.Areas.Admin.Factories
                 {
                     //fill in model values from the entity
                     var celebrityModel = celebrity.ToModel<CelebrityModel>();
+
+                    //fill in additional values (not existing in the entity)
                     var defaultCelebrityPicture = _pictureService.GetPicturesByCelebrityId(celebrity.Id, 1).FirstOrDefault();
                     celebrityModel.PictureThumbnailUrl = _pictureService.GetPictureUrl(ref defaultCelebrityPicture, 75);
 
@@ -127,10 +133,13 @@ namespace Nop.Web.Areas.Admin.Factories
                     locale.Name = _localizationService.GetLocalized(celebrity, entity => entity.Name, languageId, false, false);
                 };
 
+                model.CelebrityTags = string.Join(", ", _celebrityTagService.GetAllCelebrityTagsByCelebrityId(celebrity.Id).Select(tag => tag.Name));
+
                 //prepare localized models
                 if (!excludeProperties)
                     model.Locales = _localizedModelFactory.PrepareLocalizedModels(localizedModelConfiguration);
                 PrepareCelebrityPictureSearchModel(model.CelebrityPictureSearchModel, celebrity);
+
             }
 
             //set default values for the new model
@@ -138,6 +147,23 @@ namespace Nop.Web.Areas.Admin.Factories
             {
                 
             }
+
+            var celebrityTags = _celebrityTagService.GetAllCelebrityTags();
+            var celebrityTagsSb = new StringBuilder();
+            celebrityTagsSb.Append("var initialCelebrityTags = [");
+            for (var i = 0; i < celebrityTags.Count; i++)
+            {
+                var tag = celebrityTags[i];
+                celebrityTagsSb.Append("'");
+                celebrityTagsSb.Append(JavaScriptEncoder.Default.Encode(tag.Name));
+                celebrityTagsSb.Append("'");
+                if (i != celebrityTags.Count - 1)
+                    celebrityTagsSb.Append(",");
+            }
+            celebrityTagsSb.Append("]");
+
+            model.InitialCelebrityTags = celebrityTagsSb.ToString();
+
 
             return model;
         }
@@ -203,5 +229,90 @@ namespace Nop.Web.Areas.Admin.Factories
 
             return searchModel;
         }
+
+        /// <summary>
+        /// Prepare celebrity tag search model
+        /// </summary>
+        /// <param name="searchModel">Celebrity tag search model</param>
+        /// <returns>Celebrity tag search model</returns>
+        public virtual CelebrityTagSearchModel PrepareCelebrityTagSearchModel(CelebrityTagSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            //prepare page parameters
+            searchModel.SetGridPageSize();
+
+            return searchModel;
+        }
+
+        /// <summary>
+        /// Prepare paged celebrity tag list model
+        /// </summary>
+        /// <param name="searchModel">Celebrity tag search model</param>
+        /// <returns>Celebrity tag list model</returns>
+        public virtual CelebrityTagListModel PrepareCelebrityTagListModel(CelebrityTagSearchModel searchModel)
+        {
+            if (searchModel == null)
+                throw new ArgumentNullException(nameof(searchModel));
+
+            //get celebrity tags
+            var celebrityTags = _celebrityTagService.GetAllCelebrityTags(tagName: searchModel.SearchTagName)
+                .OrderByDescending(tag => _celebrityTagService.GetCelebrityCount(tag.Id, storeId: 0, showHidden: true)).ToList()
+                .ToPagedList(searchModel);
+
+            //prepare list model
+            var model = new CelebrityTagListModel().PrepareToGrid(searchModel, celebrityTags, () =>
+            {
+                return celebrityTags.Select(tag =>
+                {
+                    //fill in model values from the entity
+                    var celebrityTagModel = tag.ToModel<CelebrityTagModel>();
+
+                    //fill in additional values (not existing in the entity)
+                    celebrityTagModel.CelebrityCount = _celebrityTagService.GetCelebrityCount(tag.Id, storeId: 0, showHidden: true);
+
+                    return celebrityTagModel;
+                });
+            });
+
+            return model;
+        }
+
+        /// <summary>
+        /// Prepare celebrity tag model
+        /// </summary>
+        /// <param name="model">Celebrity tag model</param>
+        /// <param name="celebrityTag">Celebrity tag</param>
+        /// <param name="excludeProperties">Whether to exclude populating of some properties of model</param>
+        /// <returns>Celebrity tag model</returns>
+        public virtual CelebrityTagModel PrepareCelebrityTagModel(CelebrityTagModel model, CelebrityTag celebrityTag, bool excludeProperties = false)
+        {
+            Action<CelebrityTagLocalizedModel, int> localizedModelConfiguration = null;
+
+            if (celebrityTag != null)
+            {
+                //fill in model values from the entity
+                if (model == null)
+                {
+                    model = celebrityTag.ToModel<CelebrityTagModel>();
+                }
+
+                model.CelebrityCount = _celebrityTagService.GetCelebrityCount(celebrityTag.Id, storeId: 0, showHidden: true);
+
+                //define localized model configuration action
+                localizedModelConfiguration = (locale, languageId) =>
+                {
+                    locale.Name = _localizationService.GetLocalized(celebrityTag, entity => entity.Name, languageId, false, false);
+                };
+            }
+
+            //prepare localized models
+            if (!excludeProperties)
+                model.Locales = _localizedModelFactory.PrepareLocalizedModels(localizedModelConfiguration);
+
+            return model;
+        }
+
     }
 }
