@@ -86,30 +86,14 @@ namespace Nop.Services.Catalog
         /// <param name="storeId">Store identifier</param>
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>Dictionary of "celebrity tag ID : celebrity count"</returns>
-        private Dictionary<int, int> GetCelebrityCount(int storeId, bool showHidden)
+        private Dictionary<int, int> GetCelebrityCount()
         {
-            var allowedCustomerRolesIds = string.Empty;
-            if (!showHidden && !_catalogSettings.IgnoreAcl)
-            {
-                //Access control list. Allowed customer roles
-                //pass customer role identifiers as comma-delimited string
-                allowedCustomerRolesIds = string.Join(",", _customerService.GetCustomerRoleIds(_workContext.CurrentCustomer));
-            }
-
-            var key = _cacheKeyService.PrepareKeyForDefaultCache(NopCatalogDefaults.CelebrityTagCountCacheKey, storeId, 
-                _customerService.GetCustomerRoleIds(_workContext.CurrentCustomer), 
-                showHidden);
-           
+            var key = _cacheKeyService.PrepareKeyForDefaultCache(NopCatalogDefaults.CelebrityTagCountCacheKey);
+                           
             return _staticCacheManager.Get(key, () =>
             {
-                //prepare input parameters
-                var pStoreId = SqlParameterHelper.GetInt32Parameter("StoreId", storeId);
-                var pAllowedCustomerRoleIds = SqlParameterHelper.GetStringParameter("AllowedCustomerRoleIds", allowedCustomerRolesIds);
-
                 //invoke stored procedure
-                return _dataProvider.QueryProc<CelebrityTagWithCount>("CelebrityTagCountLoadAll",
-                        pStoreId,
-                        pAllowedCustomerRoleIds)
+                return _dataProvider.QueryProc<CelebrityTagWithCount>("CelebrityTagCountLoadAll")
                     .ToDictionary(item => item.CelebrityTagId, item => item.CelebrityCount);
             });
         }
@@ -303,7 +287,7 @@ namespace Nop.Services.Catalog
         /// <returns>Number of celebrities</returns>
         public virtual int GetCelebrityCount(int celebrityTagId, int storeId, bool showHidden = false)
         {
-            var dictionary = GetCelebrityCount(storeId, showHidden);
+            var dictionary = GetCelebrityCount();
             if (dictionary.ContainsKey(celebrityTagId))
                 return dictionary[celebrityTagId];
 

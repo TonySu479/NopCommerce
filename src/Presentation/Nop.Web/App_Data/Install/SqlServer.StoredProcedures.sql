@@ -682,6 +682,20 @@ BEGIN
 END
 GO
 
+CREATE PROCEDURE [CelebrityTagCountLoadAll]
+AS
+BEGIN
+	SET NOCOUNT ON
+	
+	SELECT pt.Id as [CelebrityTagId], COUNT(p.Id) as [CelebrityCount]
+	FROM CelebrityTag pt with (NOLOCK)
+	LEFT JOIN Celebrity_CelebrityTag_Mapping pptm with (NOLOCK) ON pt.[Id] = pptm.[CelebrityTag_Id]
+	LEFT JOIN Celebrity p with (NOLOCK) ON pptm.[Celebrity_Id] = p.[Id]
+	GROUP BY pt.Id
+	ORDER BY pt.Id
+END
+GO
+
 CREATE PROCEDURE [CelebrityLoadAllPaged]
 (
 	@CelebrityTagId		int = 0,

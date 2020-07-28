@@ -475,8 +475,6 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             //if we got this far, something failed, redisplay form
             return View(model);
         }
-
         #endregion
-
     }
 }
