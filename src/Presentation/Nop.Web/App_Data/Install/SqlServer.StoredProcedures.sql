@@ -487,7 +487,8 @@ BEGIN
 	BEGIN
 		SET @sql = @sql + '
 		AND (p.LimitedToStores = 0 OR EXISTS (
-			SELECT 1 FROM [StoreMapping] sm with (NOLOCK)
+			SELECT 1 FROM [
+            Mapping] sm with (NOLOCK)
 			WHERE [sm].EntityId = p.Id AND [sm].EntityName = ''Product'' and [sm].StoreId=' + CAST(@StoreId AS nvarchar(max)) + '
 			))'
 	END
@@ -683,6 +684,9 @@ END
 GO
 
 CREATE PROCEDURE [CelebrityTagCountLoadAll]
+(
+	@StoreId int
+)
 AS
 BEGIN
 	SET NOCOUNT ON
@@ -691,6 +695,11 @@ BEGIN
 	FROM CelebrityTag pt with (NOLOCK)
 	LEFT JOIN Celebrity_CelebrityTag_Mapping pptm with (NOLOCK) ON pt.[Id] = pptm.[CelebrityTag_Id]
 	LEFT JOIN Celebrity p with (NOLOCK) ON pptm.[Celebrity_Id] = p.[Id]
+    WHERE
+        (@StoreId = 0 or (p.LimitedToStores = 0 OR EXISTS (
+			SELECT 1 FROM [StoreMapping] sm with (NOLOCK)
+			WHERE [sm].EntityId = p.Id AND [sm].EntityName = 'Celebrity' and [sm].StoreId=@StoreId
+			)))
 	GROUP BY pt.Id
 	ORDER BY pt.Id
 END
@@ -698,6 +707,7 @@ GO
 
 CREATE PROCEDURE [CelebrityLoadAllPaged]
 (
+	@StoreId			int = 0,
 	@CelebrityTagId		int = 0,
 	@Keywords			nvarchar(4000) = null,
 	@SearchCelebrityTags  bit = 0, --a value indicating whether to search by a specified "keyword" in celebrity tags
@@ -916,7 +926,16 @@ BEGIN
 		SET @sql = @sql + '
 		AND pptm.CelebrityTag_Id = ' + CAST(@CelebrityTagId AS nvarchar(max))
 	END
-	
+
+	--filter by store
+	IF @StoreId > 0
+	BEGIN
+		SET @sql = @sql + '
+		AND (p.LimitedToStores = 0 OR EXISTS (
+			SELECT 1 FROM [StoreMapping] sm with (NOLOCK)
+			WHERE [sm].EntityId = p.Id AND [sm].EntityName = ''Celebrity'' and [sm].StoreId=' + CAST(@StoreId AS nvarchar(max)) + '
+			))'
+	END
 	
 	--sorting
 	SET @sql_orderby = ''	

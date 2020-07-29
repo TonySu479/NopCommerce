@@ -107,7 +107,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
             return Json(model);
         }
-
+        
         public virtual IActionResult Create()
         {
             if (!_permissionService.Authorize(StandardPermissionProvider.ManageCelebrities))
@@ -134,6 +134,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
                 //locales
                 UpdateLocales(celebrity, model);
+
+                //stores
+                _celebrityService.UpdateCelebrityStoreMappings(celebrity, model.SelectedStoreIds);
 
                 //tags
                 _celebrityTagService.UpdateCelebrityTags(celebrity, ParseCelebrityTags(model.CelebrityTags));
@@ -191,6 +194,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
                 //tags
                 _celebrityTagService.UpdateCelebrityTags(celebrity, ParseCelebrityTags(model.CelebrityTags));
+
+                //stores
+                _celebrityService.UpdateCelebrityStoreMappings(celebrity, model.SelectedStoreIds);
 
                 //celebrity
                 celebrity = model.ToEntity(celebrity);
