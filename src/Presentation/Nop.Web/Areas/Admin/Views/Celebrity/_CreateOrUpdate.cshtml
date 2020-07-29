@@ -23,7 +23,7 @@
         
         <nop-panels id="celebrity-panels">
             <nop-panel asp-name="celebrity-info" asp-icon="fa fa-info" asp-title="@T("Admin.Catalog.Celebrity.Info")" asp-hide-block-attribute-name="@hideInfoBlockAttributeName" asp-hide="@hideInfoBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.Info", Model)</nop-panel>
-            <nop-panel asp-name="product-pictures" asp-icon="fa fa-picture-o" asp-title="@T("Admin.Catalog.Products.Pictures")" asp-hide-block-attribute-name="@hidePicturesBlockAttributeName" asp-hide="@hidePicturesBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.Pictures", Model)</nop-panel>
+            <nop-panel asp-name="celebrity-pictures" asp-icon="fa fa-picture-o" asp-title="@T("Admin.Catalog.Celebrities.Pictures")" asp-hide-block-attribute-name="@hidePicturesBlockAttributeName" asp-hide="@hidePicturesBlock" asp-advanced="false">@await Html.PartialAsync("_CreateOrUpdate.Pictures", Model)</nop-panel>
             @await Component.InvokeAsync("AdminWidget", new { widgetZone = AdminWidgetZones.CelebrityDetailsBlock, additionalData = Model })
         </nop-panels>
     </div>
