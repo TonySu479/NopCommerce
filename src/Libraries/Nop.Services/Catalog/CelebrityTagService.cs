@@ -282,10 +282,9 @@ namespace Nop.Services.Catalog
         /// </summary>
         /// <param name="celebrityTagId">Celebrity tag identifier</param>
         /// <param name="storeId">Store identifier</param>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>Number of celebrities</returns>
-        public virtual int GetCelebrityCount(int celebrityTagId, int storeId, bool showHidden = false)
-        {
+        public virtual int GetCelebrityCount(int celebrityTagId, int storeId)
+       {
             var dictionary = GetCelebrityCount(storeId);
             if (dictionary.ContainsKey(celebrityTagId))
                 return dictionary[celebrityTagId];
