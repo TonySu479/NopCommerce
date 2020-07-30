@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Nop.Web.Areas.Admin.Models.Settings;
 using Nop.Web.Framework.Models;
 using Nop.Web.Framework.Mvc.ModelBinding;
 
 namespace Nop.Web.Areas.Admin.Models.Catalog
 {
-    public partial class CelebrityModel : BaseNopEntityModel, ILocalizedModel<CelebrityLocalizedModel>, IStoreMappingSupportedModel
+    public partial class CelebrityModel : BaseNopEntityModel, ILocalizedModel<CelebrityLocalizedModel>
     {
         #region Ctor
 
@@ -17,8 +16,6 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             AddPictureModel = new CelebrityPictureModel();
             CelebrityPictureSearchModel = new CelebrityPictureSearchModel();
             CelebrityEditorSettingsModel = new CelebrityEditorSettingsModel();
-            SelectedStoreIds = new List<int>();
-            AvailableStores = new List<SelectListItem>();
         }
 
         #endregion
@@ -26,7 +23,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         #region Properties
 
         //picture thumbnail
-        [NopResourceDisplayName("Admin.Catalog.Celebrity.Fields.PictureThumbnailUrl")]
+        [NopResourceDisplayName("Admin.Catalog.Products.Fields.PictureThumbnailUrl")]
         public string PictureThumbnailUrl { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.CelebrityTags")]
@@ -37,11 +34,6 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         public string Name { get; set; }
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.ShowOnHomepage")]
         public bool ShowOnHomepage { get; set; }
-
-        //store mapping
-        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.LimitedToStores")]
-        public IList<int> SelectedStoreIds { get; set; }
-        public IList<SelectListItem> AvailableStores { get; set; }
 
         //[NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.ProductCount")]
         //public int ProductCount { get; set; }

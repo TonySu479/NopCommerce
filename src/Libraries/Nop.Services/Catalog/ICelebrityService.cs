@@ -17,9 +17,8 @@ namespace Nop.Services.Catalog
         IList<CelebrityPicture> GetCelebrityPicturesByCelebrityId(int celebrityId);
         void InsertCelebrity(Celebrity celebrity);
         void InsertCelebrityPicture(CelebrityPicture celebrityPicture);
-        IPagedList<Celebrity> SearchCelebrities(int pageIndex = 0, int pageSize = int.MaxValue, int storeId = 0, int celebrityTagId = 0, bool searchCelebrityTags = false, int languageId = 0, CelebritySortingEnum orderBy = CelebritySortingEnum.Position);
+        IPagedList<Celebrity> SearchCelebrities(int pageIndex = 0, int pageSize = int.MaxValue, int celebrityTagId = 0, bool searchCelebrityTags = false, int languageId = 0, ProductSortingEnum orderBy = ProductSortingEnum.Position);
         void UpdateCelebrity(Celebrity celebrity);
         void UpdateCelebrityPicture(CelebrityPicture celebrityPicture);
-        void UpdateCelebrityStoreMappings(Celebrity celebrity, IList<int> limitedToStoresIds);
     }
 }

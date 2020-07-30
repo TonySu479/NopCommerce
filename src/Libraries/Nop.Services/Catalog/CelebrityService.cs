@@ -11,40 +11,31 @@ using Nop.Services.Caching;
 using Nop.Services.Caching.Extensions;
 using Nop.Services.Events;
 using Nop.Services.Localization;
-using Nop.Services.Stores;
 
 namespace Nop.Services.Catalog
 {
     public class CelebrityService : ICelebrityService
     {
-        private readonly CatalogSettings _catalogSettings;
         private readonly IRepository<Celebrity> _celebrityRepository;
         private readonly IEventPublisher _eventPublisher;
         private readonly ICacheKeyService _cacheKeyService;
         private readonly IRepository<CelebrityPicture> _celebrityPictureRepository;
         private readonly CommonSettings _commonSettings;
         private readonly ILanguageService _languageService;
-        private readonly IStoreMappingService _storeMappingService;
-        private readonly IStoreService _storeService;
         #region Ctor
 
-        public CelebrityService(CatalogSettings catalogSettings, IRepository<Celebrity> celebrityRepository, IEventPublisher eventPublisher, ICacheKeyService cacheKeyService,
+        public CelebrityService(IRepository<Celebrity> celebrityRepository, IEventPublisher eventPublisher, ICacheKeyService cacheKeyService,
           IRepository<CelebrityPicture> celebrityPictureRepository,
           CommonSettings commonSettings,
-          ILanguageService languageService,
-          IStoreMappingService storeMappingService,
-          IStoreService storeService
+          ILanguageService languageService
 )
         {
-            _catalogSettings = catalogSettings;
             _celebrityRepository = celebrityRepository;
             _eventPublisher = eventPublisher;
             _cacheKeyService = cacheKeyService;
             _celebrityPictureRepository = celebrityPictureRepository;
             _commonSettings = commonSettings;
             _languageService = languageService;
-            _storeMappingService = storeMappingService;
-            _storeService = storeService;
         }
 
         #endregion
@@ -99,12 +90,36 @@ namespace Nop.Services.Catalog
             return allCelebrities;
         }
 
+        ///// <summary>
+        ///// Search celebrities
+        ///// </summary>
+        ///// <param name="pageIndex">Page index</param>
+        ///// <param name="pageSize">Page size</param>
+        ///// <param name="celebrityTagId">Celebrity tag identifier; 0 to load all records</param>
+        ///// <param name="keywords">Keywords</param>
+        ///// <param name="searchCelebrityTags">A value indicating whether to search by a specified "keyword" in celebrity tags</param>
+        ///// <param name="languageId">Language identifier (search for text searching)</param>
+        ///// </param>
+        ///// <returns>Celebrities</returns>
+        //public virtual IPagedList<Product> SearchCelebrities(
+        //    int pageIndex = 0,
+        //    int pageSize = int.MaxValue,
+        //    int celebrityTagId = 0,
+        //    string keywords = null,
+        //    bool searchCelebrityTags = false,
+        //    int languageId = 0,
+        //    ProductSortingEnum orderBy = ProductSortingEnum.Position,
+        //    bool showHidden = false
+        //    )
+        //{
+        //    return SearchCelebrities(pageIndex, pageSize, celebrityTagId, keywords, searchCelebrityTags, languageId, orderBy, showHidden);
+        //}
+
         /// <summary>
         /// Search celebrities
         /// </summary>
         /// <param name="pageIndex">Page index</param>
         /// <param name="pageSize">Page size</param>
-        /// <param name="storeId">Store identifier; 0 to load all records</param>
         /// <param name="celebrityTagId">Celebrity tag identifier; 0 to load all records</param>
         /// <param name="searchCelebrityTags">A value indicating whether to search by a specified "keyword" in celebrity tags</param>
         /// <param name="languageId">Language identifier (search for text searching)</param>
@@ -114,11 +129,10 @@ namespace Nop.Services.Catalog
         public virtual IPagedList<Celebrity> SearchCelebrities(
             int pageIndex = 0,
             int pageSize = int.MaxValue,
-            int storeId = 0,
             int celebrityTagId = 0,
             bool searchCelebrityTags = false,
             int languageId = 0,
-            CelebritySortingEnum orderBy = CelebritySortingEnum.Position
+            ProductSortingEnum orderBy = ProductSortingEnum.Position
 )
         {
             //search by keyword
@@ -135,7 +149,6 @@ namespace Nop.Services.Catalog
                 pageSize = int.MaxValue - 1;
 
             //prepare input parameters
-            var pStoreId = SqlParameterHelper.GetInt32Parameter("StoreId", !_catalogSettings.IgnoreStoreLimitations ? storeId : 0);
             var pCelebrityTagId = SqlParameterHelper.GetInt32Parameter("CelebrityTagId", celebrityTagId);
             var pSearchCelebrityTags = SqlParameterHelper.GetBooleanParameter("SearchCelebrityTags", searchCelebrityTags);
             var pUseFullTextSearch = SqlParameterHelper.GetBooleanParameter("UseFullTextSearch", _commonSettings.UseFullTextSearch);
@@ -149,7 +162,6 @@ namespace Nop.Services.Catalog
 
             //invoke stored procedure
             var celebrities = _celebrityRepository.EntityFromSql("CelebrityLoadAllPaged",
-                pStoreId,
                 pCelebrityTagId,
                 pSearchCelebrityTags,
                 pUseFullTextSearch,
@@ -315,35 +327,6 @@ namespace Nop.Services.Catalog
 
             //event notification
             _eventPublisher.EntityInserted(celebrityPicture);
-        }
-
-        /// <summary>
-        /// Update celebrity store mappings
-        /// </summary>
-        /// <param name="celebrity">Celebrity</param>
-        /// <param name="limitedToStoresIds">A list of store ids for mapping</param>
-        public virtual void UpdateCelebrityStoreMappings(Celebrity celebrity, IList<int> limitedToStoresIds)
-        {
-            celebrity.LimitedToStores = limitedToStoresIds.Any();
-
-            var existingStoreMappings = _storeMappingService.GetStoreMappings(celebrity);
-            var allStores = _storeService.GetAllStores();
-            foreach (var store in allStores)
-            {
-                if (limitedToStoresIds.Contains(store.Id))
-                {
-                    //new store
-                    if (existingStoreMappings.Count(sm => sm.StoreId == store.Id) == 0)
-                        _storeMappingService.InsertStoreMapping(celebrity, store.Id);
-                }
-                else
-                {
-                    //remove store
-                    var storeMappingToDelete = existingStoreMappings.FirstOrDefault(sm => sm.StoreId == store.Id);
-                    if (storeMappingToDelete != null)
-                        _storeMappingService.DeleteStoreMapping(storeMappingToDelete);
-                }
-            }
         }
 
         #endregion

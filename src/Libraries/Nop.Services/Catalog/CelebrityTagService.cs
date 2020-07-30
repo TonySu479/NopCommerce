@@ -4,7 +4,6 @@ using System.Linq;
 using Nop.Core;
 using Nop.Core.Caching;
 using Nop.Core.Domain.Catalog;
-using Nop.Core.Domain.Stores;
 using Nop.Data;
 using Nop.Services.Caching;
 using Nop.Services.Caching.Extensions;
@@ -23,12 +22,14 @@ namespace Nop.Services.Catalog
 
         private readonly CatalogSettings _catalogSettings;
         private readonly ICacheKeyService _cacheKeyService;
+        private readonly ICustomerService _customerService;
         private readonly INopDataProvider _dataProvider;
         private readonly IEventPublisher _eventPublisher;
         private readonly IRepository<CelebrityCelebrityTagMapping> _celebrityCelebrityTagMappingRepository;
         private readonly IRepository<CelebrityTag> _celebrityTagRepository;
         private readonly IStaticCacheManager _staticCacheManager;
         private readonly IUrlRecordService _urlRecordService;
+        private readonly IWorkContext _workContext;
 
         #endregion
 
@@ -36,21 +37,25 @@ namespace Nop.Services.Catalog
 
         public CelebrityTagService(CatalogSettings catalogSettings,
             ICacheKeyService cacheKeyService,
+            ICustomerService customerService,
             INopDataProvider dataProvider,
             IEventPublisher eventPublisher,
             IRepository<CelebrityCelebrityTagMapping> celebrityCelebrityTagMappingRepository,
             IRepository<CelebrityTag> celebrityTagRepository,
             IStaticCacheManager staticCacheManager,
-            IUrlRecordService urlRecordService)
+            IUrlRecordService urlRecordService,
+            IWorkContext workContext)
         {
             _catalogSettings = catalogSettings;
             _cacheKeyService = cacheKeyService;
+            _customerService = customerService;
             _dataProvider = dataProvider;
             _eventPublisher = eventPublisher;
             _celebrityCelebrityTagMappingRepository = celebrityCelebrityTagMappingRepository;
             _celebrityTagRepository = celebrityTagRepository;
             _staticCacheManager = staticCacheManager;
             _urlRecordService = urlRecordService;
+            _workContext = workContext;
         }
 
         #endregion
@@ -81,18 +86,14 @@ namespace Nop.Services.Catalog
         /// <param name="storeId">Store identifier</param>
         /// <param name="showHidden">A value indicating whether to show hidden records</param>
         /// <returns>Dictionary of "celebrity tag ID : celebrity count"</returns>
-        private Dictionary<int, int> GetCelebrityCount(int storeId)
+        private Dictionary<int, int> GetCelebrityCount()
         {
-            var key = _cacheKeyService.PrepareKeyForDefaultCache(NopCatalogDefaults.CelebrityTagCountCacheKey, storeId);
+            var key = _cacheKeyService.PrepareKeyForDefaultCache(NopCatalogDefaults.CelebrityTagCountCacheKey);
                            
             return _staticCacheManager.Get(key, () =>
             {
-                //prepare input parameters
-                var pStoreId = SqlParameterHelper.GetInt32Parameter("StoreId", storeId);
-
                 //invoke stored procedure
-                return _dataProvider.QueryProc<CelebrityTagWithCount>("CelebrityTagCountLoadAll",
-                    pStoreId)
+                return _dataProvider.QueryProc<CelebrityTagWithCount>("CelebrityTagCountLoadAll")
                     .ToDictionary(item => item.CelebrityTagId, item => item.CelebrityCount);
             });
         }
@@ -285,7 +286,7 @@ namespace Nop.Services.Catalog
         /// <returns>Number of celebrities</returns>
         public virtual int GetCelebrityCount(int celebrityTagId, int storeId)
        {
-            var dictionary = GetCelebrityCount(storeId);
+            var dictionary = GetCelebrityCount();
             if (dictionary.ContainsKey(celebrityTagId))
                 return dictionary[celebrityTagId];
 

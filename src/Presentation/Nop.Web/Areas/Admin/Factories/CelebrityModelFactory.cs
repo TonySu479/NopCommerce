@@ -10,45 +10,38 @@ using Nop.Services.Localization;
 using Nop.Services.Media;
 using Nop.Web.Areas.Admin.Infrastructure.Mapper.Extensions;
 using Nop.Web.Areas.Admin.Models.Catalog;
-using Nop.Web.Framework.Extensions;
 using Nop.Web.Framework.Factories;
 using Nop.Web.Framework.Models.Extensions;
 
 namespace Nop.Web.Areas.Admin.Factories
 {
+
     public class CelebrityModelFactory : ICelebrityModelFactory
     {
         private readonly CatalogSettings _catalogSettings;
-        private readonly IBaseAdminModelFactory _baseAdminModelFactory;
         private readonly ICelebrityService _celebrityService;
         private readonly ILocalizationService _localizationService;
         private readonly ILocalizedModelFactory _localizedModelFactory;
         private readonly IPictureService _pictureService;
         private readonly ICelebrityTagService _celebrityTagService;
-        private readonly IStoreMappingSupportedModelFactory _storeMappingSupportedModelFactory;
         #region Ctor
         public CelebrityModelFactory(
             CatalogSettings catalogSettings,
-            IBaseAdminModelFactory baseAdminModelFactory,
             ICelebrityService celebrityService,
             ILocalizationService localizationService,
             ILocalizedModelFactory localizedModelFactory,
             IPictureService pictureService,
-            ICelebrityTagService celebrityTagService,
-            IStoreMappingSupportedModelFactory storeMappingSupportedModelFactory
+            ICelebrityTagService celebrityTagService
             )
         {
             _catalogSettings = catalogSettings;
-            _baseAdminModelFactory = baseAdminModelFactory;
             _celebrityService = celebrityService;
             _localizationService = localizationService;
             _localizedModelFactory = localizedModelFactory;
             _pictureService = pictureService;
             _celebrityTagService = celebrityTagService;
-            _storeMappingSupportedModelFactory = storeMappingSupportedModelFactory;
         }
         #endregion
-
         /// <summary>
         /// Prepare Celebrity search model
         /// </summary>
@@ -61,11 +54,6 @@ namespace Nop.Web.Areas.Admin.Factories
 
             //prepare grid
             searchModel.SetGridPageSize();
-
-            //prepare available stores
-            _baseAdminModelFactory.PrepareStores(searchModel.AvailableStores);
-
-            searchModel.HideStoresList = _catalogSettings.IgnoreStoreLimitations || searchModel.AvailableStores.SelectionIsNotPossible();
 
             return searchModel;
         }
@@ -83,14 +71,12 @@ namespace Nop.Web.Areas.Admin.Factories
 
             //get celebrities
             var celebrities = _celebrityService.SearchCelebrities(
-                storeId: searchModel.SearchStoreId,
                 pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
             //prepare list model
             var model = new CelebrityListModel().PrepareToGrid(searchModel, celebrities, () =>
             {
                 return celebrities.Select(celebrity =>
                 {
-                    //fill in model values from the entity
                     //fill in model values from the entity
                     var celebrityModel = celebrity.ToModel<CelebrityModel>();
 
@@ -161,10 +147,6 @@ namespace Nop.Web.Areas.Admin.Factories
             {
                 
             }
-
-
-            //prepare model stores
-            _storeMappingSupportedModelFactory.PrepareModelStores(model, celebrity, excludeProperties);
 
             var celebrityTags = _celebrityTagService.GetAllCelebrityTags();
             var celebrityTagsSb = new StringBuilder();
