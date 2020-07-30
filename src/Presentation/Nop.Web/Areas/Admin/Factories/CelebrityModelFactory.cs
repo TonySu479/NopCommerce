@@ -258,7 +258,7 @@ namespace Nop.Web.Areas.Admin.Factories
 
             //get celebrity tags
             var celebrityTags = _celebrityTagService.GetAllCelebrityTags(tagName: searchModel.SearchTagName)
-                .OrderByDescending(tag => _celebrityTagService.GetCelebrityCount(tag.Id, storeId: 0, showHidden: true)).ToList()
+                .OrderByDescending(tag => _celebrityTagService.GetCelebrityCount(tag.Id, storeId: 0)).ToList()
                 .ToPagedList(searchModel);
 
             //prepare list model
@@ -270,7 +270,7 @@ namespace Nop.Web.Areas.Admin.Factories
                     var celebrityTagModel = tag.ToModel<CelebrityTagModel>();
 
                     //fill in additional values (not existing in the entity)
-                    celebrityTagModel.CelebrityCount = _celebrityTagService.GetCelebrityCount(tag.Id, storeId: 0, showHidden: true);
+                    celebrityTagModel.CelebrityCount = _celebrityTagService.GetCelebrityCount(tag.Id, storeId: 0);
 
                     return celebrityTagModel;
                 });
@@ -298,7 +298,7 @@ namespace Nop.Web.Areas.Admin.Factories
                     model = celebrityTag.ToModel<CelebrityTagModel>();
                 }
 
-                model.CelebrityCount = _celebrityTagService.GetCelebrityCount(celebrityTag.Id, storeId: 0, showHidden: true);
+                model.CelebrityCount = _celebrityTagService.GetCelebrityCount(celebrityTag.Id, storeId: 0);
 
                 //define localized model configuration action
                 localizedModelConfiguration = (locale, languageId) =>
