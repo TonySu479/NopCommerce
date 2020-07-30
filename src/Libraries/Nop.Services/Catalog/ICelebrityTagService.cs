@@ -9,7 +9,7 @@ namespace Nop.Services.Catalog
         void DeleteCelebrityTags(IList<CelebrityTag> celebrityTags);
         IList<CelebrityTag> GetAllCelebrityTags(string tagName = null);
         IList<CelebrityTag> GetAllCelebrityTagsByCelebrityId(int celebrityId);
-        int GetCelebrityCount(int celebrityTagId, int storeId, bool showHidden = false);
+        int GetCelebrityCount(int celebrityTagId, int storeId);
         CelebrityTag GetCelebrityTagById(int celebrityTagId);
         IList<CelebrityTag> GetCelebrityTagsByIds(int[] celebrityTagIds);
         void InsertCelebrityCelebrityTagMapping(CelebrityCelebrityTagMapping tagMapping);
