@@ -196,6 +196,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
                 //tags
                 _celebrityTagService.UpdateCelebrityTags(celebrity, ParseCelebrityTags(model.CelebrityTags));
 
+                //stores
+                _celebrityService.UpdateCelebrityStoreMappings(celebrity, model.SelectedStoreIds);
+
                 //celebrity
                 celebrity = model.ToEntity(celebrity);
                 _celebrityService.UpdateCelebrity(celebrity);

@@ -23,6 +23,8 @@ namespace Nop.Web.Areas.Admin.Factories
         private readonly ILocalizedModelFactory _localizedModelFactory;
         private readonly IPictureService _pictureService;
         private readonly ICelebrityTagService _celebrityTagService;
+        private readonly IBaseAdminModelFactory _baseAdminModelFactory;
+        private readonly IStoreMappingSupportedModelFactory _storeMappingSupportedModelFactory;
         #region Ctor
         public CelebrityModelFactory(
             CatalogSettings catalogSettings,
@@ -30,7 +32,9 @@ namespace Nop.Web.Areas.Admin.Factories
             ILocalizationService localizationService,
             ILocalizedModelFactory localizedModelFactory,
             IPictureService pictureService,
-            ICelebrityTagService celebrityTagService
+            ICelebrityTagService celebrityTagService,
+            IBaseAdminModelFactory baseAdminModelFactory,
+            IStoreMappingSupportedModelFactory storeMappingSupportedModelFactory
             )
         {
             _catalogSettings = catalogSettings;
@@ -39,6 +43,8 @@ namespace Nop.Web.Areas.Admin.Factories
             _localizedModelFactory = localizedModelFactory;
             _pictureService = pictureService;
             _celebrityTagService = celebrityTagService;
+            _baseAdminModelFactory = baseAdminModelFactory;
+            _storeMappingSupportedModelFactory = storeMappingSupportedModelFactory;
         }
         #endregion
         /// <summary>
@@ -50,6 +56,10 @@ namespace Nop.Web.Areas.Admin.Factories
         {
             if (searchModel == null)
                 throw new ArgumentNullException(nameof(searchModel));
+
+
+            //prepare available stores
+            _baseAdminModelFactory.PrepareStores(searchModel.AvailableStores);
 
             //prepare grid
             searchModel.SetGridPageSize();
@@ -69,8 +79,9 @@ namespace Nop.Web.Areas.Admin.Factories
                 throw new ArgumentNullException(nameof(searchModel));
 
             //get celebrities
-            var celebrities = _celebrityService.SearchCelebrities(
+            var celebrities = _celebrityService.SearchCelebrities(storeId: searchModel.SearchStoreId,
                 pageIndex: searchModel.Page - 1, pageSize: searchModel.PageSize);
+
             //prepare list model
             var model = new CelebrityListModel().PrepareToGrid(searchModel, celebrities, () =>
             {
@@ -146,6 +157,9 @@ namespace Nop.Web.Areas.Admin.Factories
             {
                 
             }
+
+            //prepare model stores
+            _storeMappingSupportedModelFactory.PrepareModelStores(model, celebrity, excludeProperties);
 
             var celebrityTags = _celebrityTagService.GetAllCelebrityTags();
             var celebrityTagsSb = new StringBuilder();
