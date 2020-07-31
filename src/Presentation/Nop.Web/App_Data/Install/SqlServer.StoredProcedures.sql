@@ -698,6 +698,7 @@ GO
 
 CREATE PROCEDURE [CelebrityLoadAllPaged]
 (
+	@StoreId			int = 0,
 	@CelebrityTagId		int = 0,
 	@Keywords			nvarchar(4000) = null,
 	@SearchCelebrityTags  bit = 0, --a value indicating whether to search by a specified "keyword" in celebrity tags
@@ -916,7 +917,16 @@ BEGIN
 		SET @sql = @sql + '
 		AND pptm.CelebrityTag_Id = ' + CAST(@CelebrityTagId AS nvarchar(max))
 	END
-	
+
+	--filter by store
+	IF @StoreId > 0
+	BEGIN
+		SET @sql = @sql + '
+		AND (p.LimitedToStores = 0 OR EXISTS (
+			SELECT 1 FROM [StoreMapping] sm with (NOLOCK)
+			WHERE [sm].EntityId = p.Id AND [sm].EntityName = ''Celebrity'' and [sm].StoreId=' + CAST(@StoreId AS nvarchar(max)) + '
+			))'
+	END
 	
 	--sorting
 	SET @sql_orderby = ''	
