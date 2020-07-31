@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Nop.Core;
 using Nop.Core.Domain.Catalog;
 using Nop.Services.Catalog;
 using Nop.Services.Localization;
@@ -30,6 +31,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         private readonly IPictureService _pictureService;
         private readonly ICelebrityTagService _celebrityTagService;
         private readonly IUrlRecordService _urlRecordService;
+        private readonly IStoreContext _storeContext;
 
         public CelebrityController(IPermissionService permissionService, ICelebrityModelFactory celebrityModelFactory,
           ICelebrityService celebrityService,
@@ -39,7 +41,8 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
           ILocalizedEntityService localizedEntityService,
           IPictureService pictureService,
           ICelebrityTagService celebrityTagService,
-          IUrlRecordService urlRecordService
+          IUrlRecordService urlRecordService,
+          IStoreContext storeContext
           )
         {
             _permissionService = permissionService;
@@ -52,6 +55,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
             _pictureService = pictureService;
             _celebrityTagService = celebrityTagService;
             _urlRecordService = urlRecordService;
+            _storeContext = storeContext;
         }
 
         protected virtual void UpdateLocales(Celebrity celebrity,
