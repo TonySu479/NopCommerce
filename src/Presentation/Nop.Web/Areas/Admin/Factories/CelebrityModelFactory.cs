@@ -15,7 +15,6 @@ using Nop.Web.Framework.Models.Extensions;
 
 namespace Nop.Web.Areas.Admin.Factories
 {
-
     public class CelebrityModelFactory : ICelebrityModelFactory
     {
         private readonly CatalogSettings _catalogSettings;
