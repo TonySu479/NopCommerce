@@ -52,8 +52,6 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         public IList<CelebrityPictureModel> CelebrityPictureModels { get; set; }
         public CelebrityPictureSearchModel CelebrityPictureSearchModel { get; set; }
         public CelebrityEditorSettingsModel CelebrityEditorSettingsModel { get; set; }
-
-
         #endregion
     }
 

@@ -1001,8 +1001,6 @@ BEGIN
 END
 GO
 
-
-
 CREATE PROCEDURE [FullText_Enable]
 AS
 BEGIN

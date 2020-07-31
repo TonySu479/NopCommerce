@@ -14,7 +14,8 @@ namespace Nop.Web.Areas.Admin.Models.Settings
 
         [NopResourceDisplayName("Admin.Configuration.Settings.CelebrityEditor.CelebrityTags")]
         public bool CelebrityTags { get; set; }
-
+        [NopResourceDisplayName("Admin.Configuration.Settings.CelebrityEditor.Stores")]
+        public bool Stores { get; set; }
         #endregion
     }
 }
