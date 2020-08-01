@@ -90,6 +90,9 @@ namespace Nop.Web.Areas.Admin.Factories
                     //fill in model values from the entity
                     var celebrityModel = celebrity.ToModel<CelebrityModel>();
 
+                    //little performance optimization: ensure that "FullDescription" is not returned
+                    celebrityModel.FullDescription = string.Empty;
+
                     //fill in additional values (not existing in the entity)
                     var defaultCelebrityPicture = _pictureService.GetPicturesByCelebrityId(celebrity.Id, 1).FirstOrDefault();
                     celebrityModel.PictureThumbnailUrl = _pictureService.GetPictureUrl(ref defaultCelebrityPicture, 75);
@@ -141,6 +144,8 @@ namespace Nop.Web.Areas.Admin.Factories
                 localizedModelConfiguration = (locale, languageId) =>
                 {
                     locale.Name = _localizationService.GetLocalized(celebrity, entity => entity.Name, languageId, false, false);
+                    locale.FullDescription = _localizationService.GetLocalized(celebrity, entity => entity.FullDescription, languageId, false, false);
+                    locale.ShortDescription = _localizationService.GetLocalized(celebrity, entity => entity.ShortDescription, languageId, false, false);
                 };
 
                 model.CelebrityTags = string.Join(", ", _celebrityTagService.GetAllCelebrityTagsByCelebrityId(celebrity.Id).Select(tag => tag.Name));

@@ -29,7 +29,13 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.PictureThumbnailUrl")]
         public string PictureThumbnailUrl { get; set; }
 
+        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.ShortDescription")]
+        public string ShortDescription { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.FullDescription")]
+        public string FullDescription { get; set; }
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.CelebrityTags")]
+
         public string CelebrityTags { get; set; }
         public string InitialCelebrityTags { get; set; }
 
