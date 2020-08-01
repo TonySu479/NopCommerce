@@ -26,7 +26,7 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         #region Properties
 
         //picture thumbnail
-        [NopResourceDisplayName("Admin.Catalog.Products.Fields.PictureThumbnailUrl")]
+        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.PictureThumbnailUrl")]
         public string PictureThumbnailUrl { get; set; }
 
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.CelebrityTags")]
@@ -38,11 +38,9 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.ShowOnHomepage")]
         public bool ShowOnHomepage { get; set; }
 
-        //[NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.ProductCount")]
-        //public int ProductCount { get; set; }
 
         //store mapping
-        [NopResourceDisplayName("Admin.Catalog.Products.Fields.LimitedToStores")]
+        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.LimitedToStores")]
         public IList<int> SelectedStoreIds { get; set; }
         public IList<SelectListItem> AvailableStores { get; set; }
         public IList<CelebrityLocalizedModel> Locales { get; set; }
@@ -61,5 +59,10 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
 
         [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.Name")]
         public string Name { get; set; }
+        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.ShortDescription")]
+        public string ShortDescription { get; set; }
+
+        [NopResourceDisplayName("Admin.Catalog.Celebrities.Fields.FullDescription")]
+        public string FullDescription { get; set; }
     }
 }
