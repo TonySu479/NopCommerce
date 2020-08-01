@@ -19,6 +19,14 @@ namespace Nop.Core.Domain.Catalog
         /// Gets or sets a value indicating whether the entity is limited/restricted to certain stores
         /// </summary>
         public bool LimitedToStores { get; set; }
+        /// <summary>
+        /// Gets or sets the short description
+        /// </summary>
+        public string ShortDescription { get; set; }
 
+        /// <summary>
+        /// Gets or sets the full description
+        /// </summary>
+        public string FullDescription { get; set; }
     }
 }

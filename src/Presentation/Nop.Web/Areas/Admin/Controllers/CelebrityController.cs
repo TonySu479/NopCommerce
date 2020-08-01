@@ -67,6 +67,14 @@ namespace Nop.Web.Areas.Admin.Models.Catalog
                     x => x.Name,
                     localized.Name,
                     localized.LanguageId);
+                _localizedEntityService.SaveLocalizedValue(celebrity,
+                    x => x.ShortDescription,
+                    localized.ShortDescription,
+                    localized.LanguageId);
+                _localizedEntityService.SaveLocalizedValue(celebrity,
+                    x => x.FullDescription,
+                    localized.FullDescription,
+                    localized.LanguageId);
             }
         }
 
